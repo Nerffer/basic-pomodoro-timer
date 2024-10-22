@@ -11,13 +11,14 @@ label.pack(pady = 10)
 root.geometry("600x400")
 
 # defining durations for the cycles, i will make them changeable with user inputs
-work_duration = 25 * 60     # 25 minutes in seconds
-break_duration = 5 * 60     # 5 minutes in seconds
-
+work_duration = 25 * 60             # 25 minutes in seconds
+short_break_duration = 5 * 60       # 5 minutes in seconds
+long_break_duration = 15 * 60       # 15 minutes in seconds
 # global variable to control time
 time_remaining = work_duration
 is_break = False
 running = False
+pomodoro_count = 0  # to track Pomodoro cycles, after 4 cycles there will be a long break
 
 # setting the timer display
 time_label = tk.Label(text="25:00", font=(None,50))
@@ -25,7 +26,7 @@ time_label.pack(pady = 50)
 
 # implementing functions for the buttons
 def update_timer():
-    global time_remaining, is_break, running
+    global time_remaining, is_break, running, pomodoro_count
     if running and time_remaining > 0:
         minutes, seconds = divmod(time_remaining, 60)
         time_label.config(text=f"{minutes:02}:{seconds:02}")
@@ -39,11 +40,20 @@ def update_timer():
             label.config(text="Pomodoro Timer")
             messagebox.showinfo("Pomodoro Timer", "Break time ended! Back to work.")
         else:
-            time_remaining = break_duration
+            pomodoro_count += 1
+            if pomodoro_count % 4 == 0:
+                # take a longer break after 4 Pomodoros 
+                time_remaining = long_break_duration
+                time_label.config(text="15:00")
+                label.config(text="Long Break Time!")
+                messagebox.showinfo("Pomodoro Timer", "Work session ended! Time for a long break.")
+            else:
+                # take a short break
+                time_remaining = short_break_duration
+                time_label.config(text="05:00")
+                label.config(text="Break Time!")
+                messagebox.showinfo("Pomodoro Timer", "Work session ended! Time to take a break.")
             is_break = True
-            time_label.config(text="05:00")
-            label.config(text="Break Time!")
-            messagebox.showinfo("Pomodoro Timer", "Work session ended! Time to take a break.")
         running = False
 # start function
 def start_timer():
